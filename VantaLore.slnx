@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="VantaLore.Api/VantaLore.Api.csproj" />
+  <Project Path="VantaLore.Application/VantaLore.Application.csproj" />
+  <Project Path="VantaLore.Domain/VantaLore.Domain.csproj" />
+  <Project Path="VantaLore.Infrastructure/VantaLore.Infrastructure.csproj" />
+</Solution>
