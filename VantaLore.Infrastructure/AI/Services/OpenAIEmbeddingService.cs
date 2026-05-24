@@ -1,31 +1,29 @@
-﻿using System.Net.Http.Json;
+﻿using Microsoft.Extensions.Configuration;
+using OpenAI.Embeddings;
 using VantaLore.Application.Interfaces;
 
 namespace VantaLore.Infrastructure.AI;
 
 public class OpenAIEmbeddingService : IEmbeddingService
 {
-    private readonly HttpClient _http;
+    private readonly EmbeddingClient _client;
 
-    public OpenAIEmbeddingService(HttpClient http)
+    public OpenAIEmbeddingService(IConfiguration configuration)
     {
-        _http = http;
+        var apiKey = configuration["OpenAI:ApiKey"];
+
+        _client = new EmbeddingClient(
+            "text-embedding-3-small",
+            apiKey);
     }
 
     public async Task<float[]> GetEmbeddingAsync(string text)
     {
-        // API key eklenecek
-        var response = await _http.PostAsJsonAsync(
-            "https://api.openai.com/v1/embeddings",
-            new
-            {
-                model = "text-embedding-3-small",
-                input = text
-            }
-        );
+        var response =
+            await _client.GenerateEmbeddingAsync(text);
 
-        dynamic json = await response.Content.ReadFromJsonAsync<dynamic>();
-
-        return json.data[0].embedding.ToObject<float[]>();
+        return response.Value
+            .ToFloats()
+            .ToArray();
     }
 }

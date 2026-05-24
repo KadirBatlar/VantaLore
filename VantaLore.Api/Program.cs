@@ -1,11 +1,12 @@
 using VantaLore.Application.Interfaces;
 using VantaLore.Application.Services;
-using VantaLore.Infrastructure.AI;
+using VantaLore.Infrastructure.AI.Services;
 using VantaLore.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddHttpClient();
 
 builder.Services.AddControllers();
 
@@ -21,10 +22,16 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddScoped<ILoreRepository, LoreRepository>();
-builder.Services.AddScoped<LoreQueryService>();
+builder.Services.AddHttpClient<IEmbeddingService, OllamaEmbeddingService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(60);
+});
+
 builder.Services.AddScoped<IRetrievalService, EmbeddingRetrievalService>();
-builder.Services.AddScoped<IEmbeddingService, FakeEmbeddingService>();
+
+builder.Services.AddScoped<ILoreRepository, LoreRepository>();
+
+builder.Services.AddScoped<LoreQueryService>();
 
 var app = builder.Build();
 

@@ -1,4 +1,4 @@
-﻿using VantaLore.Application.Interfaces;
+using VantaLore.Application.Interfaces;
 using VantaLore.Domain.Entities;
 
 public class EmbeddingRetrievalService : IRetrievalService
@@ -22,7 +22,7 @@ public class EmbeddingRetrievalService : IRetrievalService
 
         foreach (var chunk in data)
         {
-            if (chunk.Embedding == null)
+            if (chunk.Embedding == null && chunk.Content is not null)
                 chunk.Embedding = await _embedding.GetEmbeddingAsync(chunk.Content);
         }
 
@@ -32,17 +32,21 @@ public class EmbeddingRetrievalService : IRetrievalService
             .ToList();
     }
 
-    private double CosineSimilarity(float[] a, float[] b)
+    private static double CosineSimilarity(float[]? a, float[]? b)
     {
+        if (a is null || b is null) return 0;
+        if (a.Length != b.Length) return 0;
+
         double dot = 0, magA = 0, magB = 0;
 
         for (int i = 0; i < a.Length; i++)
         {
-            dot += a[i] * b[i];
+            dot  += a[i] * b[i];
             magA += a[i] * a[i];
             magB += b[i] * b[i];
         }
 
-        return dot / (Math.Sqrt(magA) * Math.Sqrt(magB));
+        var denom = Math.Sqrt(magA) * Math.Sqrt(magB);
+        return denom == 0 ? 0 : dot / denom;
     }
 }

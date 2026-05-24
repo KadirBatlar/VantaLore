@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using VantaLore.Application.Services;
 
 namespace VantaLore.Api.Controllers;
@@ -15,16 +15,16 @@ public class LoreController : ControllerBase
     }
 
     [HttpGet("search")]
-    public IActionResult Search(string query)
+    public async Task<IActionResult> Search(string query)
     {
-        var result = _service.Search(query);
+        var result = await _service.Search(query);
         return Ok(result);
     }
 
-    [HttpGet("ask")]
-    public IActionResult Ask(string question)
+    [HttpPost("ask")]
+    public async Task<IActionResult> Ask(string question)
     {
-        var result = _service.Ask(question);
+        var result = await _service.Ask(question);
 
         return Ok(new
         {
