@@ -27,13 +27,32 @@ builder.Services.AddHttpClient<IEmbeddingService, OllamaEmbeddingService>(client
     client.Timeout = TimeSpan.FromSeconds(60);
 });
 
+// Application
+builder.Services.AddScoped<LoreQueryService>();
 builder.Services.AddScoped<IRetrievalService, EmbeddingRetrievalService>();
+builder.Services.AddSingleton<ILoreIndexService, InMemoryLoreIndexService>();
 
+// Infrastructure
+builder.Services.AddScoped<IEmbeddingService, OllamaEmbeddingService>();
 builder.Services.AddScoped<ILoreRepository, LoreRepository>();
 
-builder.Services.AddScoped<LoreQueryService>();
-
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var repo = scope.ServiceProvider.GetRequiredService<ILoreRepository>();
+    var embedding = scope.ServiceProvider.GetRequiredService<IEmbeddingService>();
+    var index = scope.ServiceProvider.GetRequiredService<ILoreIndexService>();
+
+    var chunks = repo.GetAll();
+
+    foreach (var chunk in chunks)
+    {
+        chunk.Embedding = await embedding.GetEmbeddingAsync(chunk.Content);
+    }
+
+    await index.BuildIndexAsync(chunks);
+}
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>

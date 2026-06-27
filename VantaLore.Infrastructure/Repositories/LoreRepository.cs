@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using VantaLore.Application.Interfaces;
+﻿using VantaLore.Application.Interfaces;
 using VantaLore.Domain.Entities;
 
 namespace VantaLore.Infrastructure.Repositories

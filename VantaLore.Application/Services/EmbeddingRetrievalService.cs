@@ -3,32 +3,28 @@ using VantaLore.Domain.Entities;
 
 public class EmbeddingRetrievalService : IRetrievalService
 {
-    private readonly ILoreRepository _repo;
     private readonly IEmbeddingService _embedding;
+    private readonly ILoreIndexService _indexService;
 
     public EmbeddingRetrievalService(
-        ILoreRepository repo,
-        IEmbeddingService embedding)
+        IEmbeddingService embedding,
+        ILoreIndexService indexService)
     {
-        _repo = repo;
         _embedding = embedding;
+        _indexService = indexService;
     }
 
     public async Task<List<LoreChunk>> Retrieve(string query)
     {
-        var data = _repo.GetAll();
 
-        var queryVector = await _embedding.GetEmbeddingAsync(query);
+        var queryVector = await _embedding.GetEmbeddingAsync(query);        
 
-        foreach (var chunk in data)
-        {
-            if (chunk.Embedding == null && chunk.Content is not null)
-                chunk.Embedding = await _embedding.GetEmbeddingAsync(chunk.Content);
-        }
+        var chunks = _indexService.GetIndex();
 
-        return data
+        return chunks
             .OrderByDescending(x => CosineSimilarity(x.Embedding, queryVector))
             .Take(3)
+            .Select(x => x.Chunk)
             .ToList();
     }
 
