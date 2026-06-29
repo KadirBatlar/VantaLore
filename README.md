@@ -1,63 +1,64 @@
 # VantaLore
 
-VantaLore, RAG (Retrieval-Augmented Generation) tabanlı bir AI sistemidir. Amaç; yerel veri + embedding + LLM kombinasyonu ile daha doğru, bağlama duyarlı cevaplar üretmektir.
+VantaLore is a RAG (Retrieval-Augmented Generation) based AI system. Its goal is to generate more accurate and context-aware responses by combining local data, embeddings, and LLMs.
 
 ---
 
-## 🚀 Özellikler
+## 🚀 Features
 
-- RAG mimarisi ile doküman bazlı cevap üretimi
-- Yerel embedding modeli desteği (Ollama ile)
-- API + frontend ayrık yapı
-- Genişletilebilir backend mimarisi
-- Lokal çalışabilen AI pipeline
+- Document-based Q&A using RAG architecture
+- Local embedding support (via Ollama)
+- Separate API and frontend architecture
+- Extensible backend design
+- Fully local AI pipeline support
 
 ---
 
-## 🧠 Mimari
+## 🧠 Architecture
 
-Sistem temel olarak 3 parçadan oluşur:
+The system consists of 3 main parts:
 
-- Frontend → Kullanıcı arayüzü  
-- Backend API → Sorgu işleme ve orchestration  
+- Frontend → User interface
+- Backend API → Query processing & orchestration
 - RAG Layer:
-  - Embedding üretimi (nomic-embed-text-v2-moe)
+  - Embedding generation (nomic-embed-text-v2-moe)
   - Vector search
-  - Context injection  
-- LLM (Ollama) → Yanıt üretimi
+  - Context injection
+- LLM (Ollama) → Response generation
 
 ---
 
-## ⚙️ Gereksinimler
+## ⚙️ Requirements
 
-- .NET (backend için)
-- Node.js (frontend için)
-- Ollama kurulu olmalı
+- .NET (for backend)
+- Node.js (for frontend)
+- Ollama installed and running
 
-### Model:
+### Models:
 - nomic-embed-text-v2-moe
-- (opsiyonel) llama3 / mistral
+- (optional) llama3 / mistral
 
 ---
 
-## 🔧 Kurulum
+## 🔧 Installation
 
-### 1. Ollama Kurulumu
+### 1. Install Ollama
 
-Ollama servisinin çalıştığından emin ol:
+Make sure Ollama is running:
 
 http://localhost:11434
 
-Model indir:
+Pull required model:
+
 ```
 ollama pull nomic-embed-text-v2-moe
 ```
 
 ---
 
-### 2. Backend Çalıştırma
+### 2. Run Backend
 
-Solution root klasöründe:
+From the solution root:
 
 ```
 dotnet restore
@@ -65,28 +66,30 @@ dotnet build
 dotnet run
 ```
 
-Backend:
+Backend runs at:
+
 http://localhost:5042
 
 ---
 
-### 3. Frontend Çalıştırma
+### 3. Run Frontend
 
-Frontend klasörüne gir:
+Go to frontend folder:
 
 ```
 npm install
 npm run dev
 ```
 
-Frontend genelde:
+Frontend usually runs at:
+
 http://localhost:5173
 
 ---
 
-## 🔗 Konfigürasyon
+## 🔗 Configuration
 
-appsettings.json:
+Example `appsettings.json`:
 
 ```
 "Ollama": {
@@ -99,58 +102,59 @@ appsettings.json:
 
 ## 📦 API Endpoints
 
-- POST /api/chat → kullanıcı mesajı
-- POST /api/ingest → doküman ekleme
-- GET /api/search → vector search test
+- POST /api/chat → send user message
+- POST /api/ingest → add documents for RAG indexing
+- GET /api/search → vector search test endpoint
 
 ---
 
-## 🧪 RAG Akışı
+## 🧪 RAG Flow
 
-1. Kullanıcı prompt gönderir  
-2. Embedding üretilir  
-3. Vector DB’de similarity search yapılır  
-4. Context çıkarılır  
-5. Prompt + context LLM’e gönderilir  
-6. Cevap döner  
-
----
-
-## 🧱 Teknolojiler
-
-- .NET Web API  
-- Ollama  
-- Vector Database  
-- Embedding Models  
-- React / Vite (frontend)  
+1. User sends a prompt
+2. Prompt is converted into embeddings
+3. Vector similarity search is performed
+4. Relevant context is retrieved
+5. Prompt + context is sent to LLM
+6. Final response is generated
 
 ---
 
-## 🧯 Sorun Giderme
+## 🧱 Technologies Used
 
-### Ollama çalışmıyor
-- http://localhost:11434 açık mı kontrol et
-- Model yüklü mü?
+- .NET Web API
+- Ollama
+- Vector Database
+- Embedding Models
+- React / Vite (frontend)
 
-### CORS hatası
-- Backend CORS ayarlarını kontrol et
+---
 
-### Embedding hatası
-- Model adı doğru mu?
-- nomic-embed-text-v2-moe yüklü mü?
+## 🧯 Troubleshooting
+
+### Ollama not working
+- Check if http://localhost:11434 is running
+- Ensure model is installed
+
+### CORS errors
+- Check backend CORS configuration
+
+### Embedding errors
+- Verify model name
+- Ensure nomic-embed-text-v2-moe is installed
 
 ---
 
 ## 🧭 Roadmap
 
 - [ ] Hybrid search (BM25 + vector)
-- [ ] Daha iyi chunking
-- [ ] Memory system
+- [ ] Improved chunking strategy
+- [ ] Memory system per user
 - [ ] Chat history optimization
 - [ ] Docker support
 
 ---
 
-## 📌 Not
+## 📌 Note
 
-Bu proje aktif geliştirme aşamasındadır. Mimari ve endpoint’ler değişebilir.
+This project is under active development. Architecture and endpoints may change over time.
+```
