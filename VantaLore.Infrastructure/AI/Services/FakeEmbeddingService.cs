@@ -1,10 +1,10 @@
-﻿using VantaLore.Application.Interfaces;
+using VantaLore.Application.Interfaces;
 
 namespace VantaLore.Infrastructure.AI;
 
 public class FakeEmbeddingService : IEmbeddingService
 {
-    public Task<float[]> GetEmbeddingAsync(string text)
+    public Task<float[]> GetEmbeddingAsync(string text, CancellationToken ct = default)
     {
         var hash = text.GetHashCode();
 

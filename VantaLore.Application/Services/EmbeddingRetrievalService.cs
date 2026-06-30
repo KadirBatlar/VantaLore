@@ -1,48 +1,25 @@
 using VantaLore.Application.Interfaces;
-using VantaLore.Domain.Entities;
+using VantaLore.Application.Models;
 
-public class EmbeddingRetrievalService : IRetrievalService
+namespace VantaLore.Application.Services;
+
+public sealed class EmbeddingRetrievalService : IRetrievalService
 {
     private readonly IEmbeddingService _embedding;
-    private readonly ILoreIndexService _indexService;
+    private readonly IVectorStore _vectorStore;
 
-    public EmbeddingRetrievalService(
-        IEmbeddingService embedding,
-        ILoreIndexService indexService)
+    public EmbeddingRetrievalService(IEmbeddingService embedding, IVectorStore vectorStore)
     {
-        _embedding = embedding;
-        _indexService = indexService;
+        _embedding  = embedding;
+        _vectorStore = vectorStore;
     }
 
-    public async Task<List<LoreChunk>> Retrieve(string query)
+    public async Task<IReadOnlyList<ScoredChunk>> RetrieveAsync(
+        string query,
+        int topK = 5,
+        CancellationToken ct = default)
     {
-
-        var queryVector = await _embedding.GetEmbeddingAsync(query);        
-
-        var chunks = _indexService.GetIndex();
-
-        return chunks
-            .OrderByDescending(x => CosineSimilarity(x.Embedding, queryVector))
-            .Take(3)
-            .Select(x => x.Chunk)
-            .ToList();
-    }
-
-    private static double CosineSimilarity(float[]? a, float[]? b)
-    {
-        if (a is null || b is null) return 0;
-        if (a.Length != b.Length) return 0;
-
-        double dot = 0, magA = 0, magB = 0;
-
-        for (int i = 0; i < a.Length; i++)
-        {
-            dot  += a[i] * b[i];
-            magA += a[i] * a[i];
-            magB += b[i] * b[i];
-        }
-
-        var denom = Math.Sqrt(magA) * Math.Sqrt(magB);
-        return denom == 0 ? 0 : dot / denom;
+        var queryVector = await _embedding.GetEmbeddingAsync(query, ct);
+        return await _vectorStore.SearchAsync(queryVector, topK, ct);
     }
 }

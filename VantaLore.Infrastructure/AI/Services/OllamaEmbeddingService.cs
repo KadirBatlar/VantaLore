@@ -13,11 +13,13 @@ public class OllamaEmbeddingService : IEmbeddingService
     public OllamaEmbeddingService(HttpClient http, IConfiguration configuration)
     {
         _http    = http;
-        _baseUrl = configuration["Ollama:BaseUrl"];
-        _model   = configuration["Ollama:EmbeddingModel"];
+        _baseUrl = configuration["Ollama:BaseUrl"]
+            ?? throw new ArgumentNullException("Ollama:BaseUrl", "Ollama base URL is not configured.");
+        _model   = configuration["Ollama:EmbeddingModel"]
+            ?? throw new ArgumentNullException("Ollama:EmbeddingModel", "Ollama embedding model is not configured.");
     }
 
-    public async Task<float[]> GetEmbeddingAsync(string text)
+    public async Task<float[]> GetEmbeddingAsync(string text, CancellationToken ct = default)
     {
         var response = await _http.PostAsJsonAsync(
             $"{_baseUrl}/api/embeddings",
@@ -25,24 +27,26 @@ public class OllamaEmbeddingService : IEmbeddingService
             {
                 model  = _model,
                 prompt = text
-            });
+            },
+            ct);
 
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content
-            .ReadFromJsonAsync<OllamaEmbeddingsResponse>()
+            .ReadFromJsonAsync<OllamaEmbeddingsResponse>(cancellationToken: ct)
             ?? throw new InvalidOperationException(
-                "Ollama /api/embeddings null response döndürdü.");
+                "Ollama returned a null response from /api/embeddings.");
 
-        if (result.embedding is null || result.embedding.Length == 0)
+        if (result.Embedding is null || result.Embedding.Length == 0)
             throw new InvalidOperationException(
-                "Ollama /api/embeddings boş embedding döndürdü.");
+                "Ollama returned an empty embedding from /api/embeddings.");
 
-        return result.embedding;
+        return result.Embedding;
     }
 
     private sealed class OllamaEmbeddingsResponse
     {
-        public float[]? embedding { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("embedding")]
+        public float[]? Embedding { get; set; }
     }
 }

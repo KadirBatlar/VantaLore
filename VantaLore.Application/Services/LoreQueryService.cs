@@ -1,9 +1,10 @@
-﻿using VantaLore.Application.Interfaces;
+using VantaLore.Application.Interfaces;
 using VantaLore.Domain.Entities;
 
 namespace VantaLore.Application.Services;
 
-public class LoreQueryService
+//sealed = cannot be inherited
+public sealed class LoreQueryService
 {
     private readonly IRetrievalService _retrievalService;
 
@@ -12,14 +13,17 @@ public class LoreQueryService
         _retrievalService = retrievalService;
     }
 
-    public async Task<List<LoreChunk>> Search(string query)
+    ///Returns the top 5 matching lore chunks 
+    public async Task<IReadOnlyList<LoreChunk>> Search(string query, CancellationToken ct = default)
     {
-        return await _retrievalService.Retrieve(query);
+        var results = await _retrievalService.RetrieveAsync(query, topK: 5, ct);
+        return results.Select(x => x.Chunk).ToList();
     }
 
-    public async Task<LoreChunk?> Ask(string question)
+    ///Returns the single best matching chunk
+    public async Task<LoreChunk?> Ask(string question, CancellationToken ct = default)
     {
-        return (await _retrievalService.Retrieve(question))
-            .FirstOrDefault();
+        var results = await _retrievalService.RetrieveAsync(question, topK: 1, ct);
+        return results.FirstOrDefault()?.Chunk;
     }
 }

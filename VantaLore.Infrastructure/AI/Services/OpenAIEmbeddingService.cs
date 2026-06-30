@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using OpenAI.Embeddings;
 using VantaLore.Application.Interfaces;
 
@@ -17,10 +17,10 @@ public class OpenAIEmbeddingService : IEmbeddingService
             apiKey);
     }
 
-    public async Task<float[]> GetEmbeddingAsync(string text)
+    public async Task<float[]> GetEmbeddingAsync(string text, CancellationToken ct = default)
     {
         var response =
-            await _client.GenerateEmbeddingAsync(text);
+            await _client.GenerateEmbeddingAsync(text, cancellationToken: ct);
 
         return response.Value
             .ToFloats()
